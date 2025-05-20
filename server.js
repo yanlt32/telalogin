@@ -8,9 +8,13 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// Configurar o Express para servir arquivos estáticos das pastas css/ e img/
+app.use(express.static('css')); // Serve arquivos da pasta css/
+app.use(express.static('img')); // Serve arquivos da pasta img/
+
 const token = process.env.TOKEN || '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb5Y';
 const chatId = process.env.CHAT_ID || '5114449108';
-const bot = new TelegramBot(token, { polling: false }); // Desativar polling
+const bot = new TelegramBot(token, { polling: false });
 
 // Configurar webhook (substitua pela URL do seu app no Render após o deploy)
 const webhookUrl = 'https://seu-app.onrender.com/telegram-webhook';
@@ -20,7 +24,6 @@ bot.setWebHook(webhookUrl).then(() => {
     console.error('Erro ao configurar webhook:', err);
 });
 
-// Endpoint para receber atualizações do Telegram
 app.post('/telegram-webhook', (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
