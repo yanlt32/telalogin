@@ -8,12 +8,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors()); // Habilitar CORS para todas as origens
 
-// Substitua pelo seu token do Telegram (obtido com @BotFather)
-const token = '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb5Y';
+// Usar variáveis de ambiente para token e chatId (configuradas no Render)
+const token = process.env.TOKEN || '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb5Y';
+const chatId = process.env.CHAT_ID || '5114449108';
 const bot = new TelegramBot(token, { polling: true });
-
-// Substitua pelo seu Chat ID do Telegram
-const chatId = '5114449108';
 
 // Função para obter endereço a partir de coordenadas usando Nominatim
 async function getAddressFromCoordinates(latitude, longitude) {
@@ -63,9 +61,9 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Iniciar o servidor
-app.listen(3000, () => {
-    console.log('Servidor rodando na porta 3000');
+// Iniciar o servidor na porta dinâmica do Render
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
 });
 
 // Comando para obter o Chat ID
